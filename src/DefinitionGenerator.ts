@@ -103,7 +103,9 @@ export class DefinitionGenerator {
         if (httpEventConfig.documentation) {
           // Build OpenAPI path configuration structure for each method
           const pathConfig = {
-            [`/${httpEventConfig.path}`]: {
+            // allow path override (eg: renaming of parameters for documentation)
+            // strip leading '/' from paths if it exist
+            [`/${(httpEventConfig.documentation.path ? httpEventConfig.documentation.path : httpEventConfig.path).replace(/^\//, '')}`]: {
               [httpEventConfig.method.toLowerCase()]: this.getOperationFromConfig(
                 funcConfig._functionName,
                 httpEventConfig.documentation
@@ -132,6 +134,11 @@ export class DefinitionGenerator {
     const operationObj: Operation = {
       operationId: documentationConfig.summary.replaceAll(" ", "")
     };
+
+    // allow override of operationId property
+    if (documentationConfig.operationId) {
+      operationObj.operationId = documentationConfig.operationId;
+    }
 
     if (documentationConfig.summary) {
       operationObj.summary = documentationConfig.summary;
@@ -273,7 +280,7 @@ export class DefinitionGenerator {
             schema: {
               $ref: `#/components/schemas/${
                 documentationConfig.requestModels[requestModelType]
-              }`
+                }`
             }
           };
 

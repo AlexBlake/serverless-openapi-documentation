@@ -37,7 +37,8 @@
     "test:prepare": "scripts/prepareTests.bash",
     "build:link": "npm run build && cd build && npm link",
     "build:watch": "npm run build && tsc --watch",
-    "build": "scripts/build.bash"
+    "build": "scripts/build.bash",
+    "prepare": "npm run build"
   },
   "devDependencies": {
     "@types/bluebird": "^3.5.8",
