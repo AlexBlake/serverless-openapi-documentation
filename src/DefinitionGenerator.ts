@@ -100,12 +100,26 @@ export class DefinitionGenerator {
       for (const httpEvent of this.getHttpEvents(funcConfig.events)) {
         const httpEventConfig = httpEvent.http;
 
+        // Build OpenAPI path configuration structure for each method
         if (httpEventConfig.documentation) {
-          // Build OpenAPI path configuration structure for each method
+          let path = httpEventConfig.path;
+          // allow path override (eg: renaming of parameters for documentation)
+          if (httpEventConfig.documentation.path) {
+            // validate the paths follow the same pattern, only allow path parameter renaming for documentation
+            // this helps to handle naming of optional nested params eg: /path/{required} & /path/{required}/{optional}
+            const expression = path.split('/').map(p => {
+              return /^\{.+\}$/.test(p) ? '\{.+\}' : p;
+            }).join('\/');
+            // test if the paths match a consistent pattern ( avoid undetected invalid documentation )
+            if (false === new RegExp(`^${expression}$`).test(httpEventConfig.documentation.path)) {
+              throw new Error(`Invalid 'path' override: '${httpEventConfig.documentation.path}' does not match the function path pattern of '${httpEventConfig.path}'`);
+            }
+            // switch out to configured path
+            path = httpEventConfig.documentation.path;
+          }
           const pathConfig = {
-            // allow path override (eg: renaming of parameters for documentation)
             // strip leading '/' from paths if it exist
-            [`/${(httpEventConfig.documentation.path ? httpEventConfig.documentation.path : httpEventConfig.path).replace(/^\//, '')}`]: {
+            [`/${(path).replace(/^\//, '')}`]: {
               [httpEventConfig.method.toLowerCase()]: this.getOperationFromConfig(
                 funcConfig._functionName,
                 httpEventConfig.documentation

@@ -7,6 +7,7 @@ import { inspect } from "util";
 
 import { DefinitionGenerator } from "./DefinitionGenerator";
 import { Format, DefinitionConfig, DefinitionType, ILog } from "./types";
+import EventSchema from './EventSchema';
 
 interface Options {
   indent: number;
@@ -89,6 +90,9 @@ export class ServerlessOpenApiDocumentation {
     this.hooks = {
       "openapi:generate:serverless": this.generate.bind(this)
     };
+
+    this.serverless.configSchemaHandler.defineFunctionEventProperties('aws', 'http', EventSchema);
+    this.serverless.configSchemaHandler.defineFunctionEventProperties('aws', 'httpApi', EventSchema);
   }
 
   private log: ILog = (...str: Array<string>) => {
