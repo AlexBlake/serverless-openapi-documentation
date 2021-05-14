@@ -132,7 +132,7 @@ export class DefinitionGenerator {
     documentationConfig
   ): Operation {
     const operationObj: Operation = {
-      operationId: documentationConfig.summary.replaceAll(" ", "")
+      operationId: funcName // default to function name
     };
 
     // allow override of operationId property
