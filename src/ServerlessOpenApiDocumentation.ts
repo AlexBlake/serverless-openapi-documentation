@@ -28,6 +28,7 @@ interface Service {
 
 interface Variables {
   service: Service;
+  populateService(): Promise<any>;
 }
 
 interface FullServerless extends Serverless {
@@ -65,14 +66,17 @@ export class ServerlessOpenApiDocumentation {
             options: {
               output: {
                 usage: "Output file location [default: openapi.yml|json]",
+                type: "string",
                 shortcut: "o"
               },
               format: {
                 usage: "OpenAPI file format (yml|json) [default: yml]",
+                type: "string",
                 shortcut: "f"
               },
               indent: {
                 usage: "File indentation in spaces [default: 2]",
+                type: "string",
                 shortcut: "i"
               }
             }
@@ -109,7 +113,7 @@ export class ServerlessOpenApiDocumentation {
       .getAllFunctions()
       .map(functionName => {
         const func = this.serverless.service.getFunction(functionName);
-        return _.merge({ _functionName: functionName }, func);
+        return _.merge({ _functionName: functionName, handler: null }, func);
       });
 
     // Add Paths to OpenAPI Output from Function Configuration
