@@ -166,10 +166,15 @@ export class DefinitionGenerator {
       operationObj.tags = documentationConfig.tags;
     }
 
+    if (documentationConfig.security) {
+      operationObj.security = documentationConfig.security;
+    }
+
     if (documentationConfig.deprecated) {
       operationObj.deprecated = true;
     }
 
+    // only accepts requestModels if description is present currently, can we resolve this to work either way?
     if (documentationConfig.requestBody) {
       operationObj.requestBody = this.getRequestBodiesFromConfig(
         documentationConfig
