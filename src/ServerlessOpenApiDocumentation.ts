@@ -173,19 +173,39 @@ export class ServerlessOpenApiDocumentation {
 
     let output;
     switch (config.format.toLowerCase()) {
-      case "json":
+      case Format.all:
+        // json
         output = JSON.stringify(definition, null, config.indent);
+        this.writeOutput(config.file, '.json', output);
+        // yaml
+        output = YAML.safeDump(definition, { indent: config.indent });
+        this.writeOutput(config.file, '.yaml', output);
         break;
-      case "yaml":
+      case Format.json:
+        output = JSON.stringify(definition, null, config.indent);
+        this.writeOutput(config.file, '.json', output);
+        break;
+      case Format.yaml:
       default:
         output = YAML.safeDump(definition, { indent: config.indent });
+        this.writeOutput(config.file, '.yaml', output);
         break;
     }
 
-    fs.writeFileSync(config.file, output);
+  }
 
+  /**
+   * @private
+   * @param {string} file
+   * @param {string} ext
+   * @param {string} output
+   * @memberof ServerlessOpenApiDocumentation
+   */
+  private writeOutput(file: string, ext: string, output: string) {
+    const outPath = file.replace(/\.(json|yml|yaml)$/, '') + ext;
+    fs.writeFileSync(outPath, output);
     this.log(
-      `${chalk.bold.green("[OUTPUT]")} To "${chalk.bold.red(config.file)}"\n`
+      `${chalk.bold.green("[OUTPUT]")} To "${chalk.bold.red(outPath)}"\n`
     );
   }
 
@@ -204,20 +224,18 @@ export class ServerlessOpenApiDocumentation {
     config.format =
       this.serverless.processedInput.options.format || Format.yaml;
 
-    if ([Format.yaml, Format.json].indexOf(config.format) < 0) {
+    if ([Format.yaml, Format.json, Format.all].indexOf(config.format) < 0) {
       throw new Error(
-        'Invalid Output Format Specified - must be one of "yaml" or "json"'
+        'Invalid Output Format Specified - must be one of "yaml" or "json" or "*" for all, provided: ' + config.format
       );
     }
 
-    config.file =
-      this.serverless.processedInput.options.output ||
-      (config.format === "yaml" ? "openapi.yml" : "openapi.json");
+    config.file = this.serverless.processedInput.options.output || "openapi";
 
     this.log(
       `${chalk.bold.green("[OPTIONS]")}`,
       `format: "${chalk.bold.red(config.format)}",`,
-      `output file: "${chalk.bold.red(config.file)}",`,
+      `output filename: "${chalk.bold.red(config.file)}",`,
       `indentation: "${chalk.bold.red(String(config.indent))}"\n\n`
     );
 

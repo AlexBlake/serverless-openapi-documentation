@@ -22,7 +22,8 @@ export interface DefinitionConfig {
 
 export enum Format {
   yaml = "yaml",
-  json = "json"
+  json = "json",
+  all = "*"
 }
 
 export interface DefinitionType {
