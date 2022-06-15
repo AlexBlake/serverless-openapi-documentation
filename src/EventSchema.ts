@@ -1,10 +1,16 @@
 const ExampleSchema = {
-    type: ['number', 'string', 'object'],
-    properties: {
-        value: { type: 'string' },
-        summary: { type: 'string' },
-    },
-    additionalProperties: true
+    anyOf: [
+        { type: 'number' },
+        { type: 'string' },
+        {
+            type: 'object',
+            properties: {
+                value: { type: 'string' },
+                summary: { type: 'string' },
+            },
+            additionalProperties: true
+        }
+    ]
 }
 
 const ParamSchema = {
@@ -37,7 +43,6 @@ const ParamSchema = {
 }
 
 export default {
-    type: 'object',
     properties: {
         documentation: {
             type: 'object',
